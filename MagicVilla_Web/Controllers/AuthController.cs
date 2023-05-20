@@ -37,7 +37,7 @@ namespace MagicVilla_Web.Controllers
                 TokenDTO model = JsonConvert.DeserializeObject<TokenDTO>(Convert.ToString(response.Result));
 
                 var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(model.Token);
+                var jwt = handler.ReadJwtToken(model.AccessToken);
 
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 identity.AddClaim(new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(u => u.Type == "name").Value));
@@ -46,7 +46,7 @@ namespace MagicVilla_Web.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
 
-                HttpContext.Session.SetString(SD.AccessToken, model.Token);
+                HttpContext.Session.SetString(SD.AccessToken, model.AccessToken);
                 return RedirectToAction("Index","Home");
             }
             else
