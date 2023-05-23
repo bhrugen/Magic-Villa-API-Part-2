@@ -24,70 +24,76 @@ namespace MagicVilla_Web.Services
             try
             {
                 var client = httpClient.CreateClient("MagicAPI");
-                HttpRequestMessage message = new HttpRequestMessage();
-                if (apiRequest.ContentType == ContentType.MultipartFormData)
-                {
-                    message.Headers.Add("Accept", "*/*");
-                }
-                else
-                {
-                    message.Headers.Add("Accept", "application/json");
-                }
-                message.RequestUri = new Uri(apiRequest.Url);
-                if (withBearer && _tokenProvider.GetToken() != null)
-                {
-                    var token = _tokenProvider.GetToken();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                }
-                if (apiRequest.ContentType == ContentType.MultipartFormData)
-                {
-                    var content = new MultipartFormDataContent();
 
-                    foreach(var prop in apiRequest.Data.GetType().GetProperties())
+                var messageFactory = () =>
+                {
+                    HttpRequestMessage message = new();
+                    if (apiRequest.ContentType == ContentType.MultipartFormData)
                     {
-                        var value = prop.GetValue(apiRequest.Data);
-                        if(value is FormFile)
+                        message.Headers.Add("Accept", "*/*");
+                    }
+                    else
+                    {
+                        message.Headers.Add("Accept", "application/json");
+                    }
+                    message.RequestUri = new Uri(apiRequest.Url);
+                    if (withBearer && _tokenProvider.GetToken() != null)
+                    {
+                        var token = _tokenProvider.GetToken();
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+                    }
+                    if (apiRequest.ContentType == ContentType.MultipartFormData)
+                    {
+                        var content = new MultipartFormDataContent();
+
+                        foreach (var prop in apiRequest.Data.GetType().GetProperties())
                         {
-                            var file = (FormFile)value;
-                            if (file != null)
+                            var value = prop.GetValue(apiRequest.Data);
+                            if (value is FormFile)
                             {
-                                content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+                                var file = (FormFile)value;
+                                if (file != null)
+                                {
+                                    content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+                                }
+                            }
+                            else
+                            {
+                                content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
                             }
                         }
-                        else
+
+                        message.Content = content;
+                    }
+                    else
+                    {
+                        if (apiRequest.Data != null)
                         {
-                            content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+                            message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
+                                Encoding.UTF8, "application/json");
                         }
                     }
 
-                    message.Content = content;
-                }
-                else
-                {
-                    if (apiRequest.Data != null)
+
+                    switch (apiRequest.ApiType)
                     {
-                        message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
-                            Encoding.UTF8, "application/json");
+                        case SD.ApiType.POST:
+                            message.Method = HttpMethod.Post;
+                            break;
+                        case SD.ApiType.PUT:
+                            message.Method = HttpMethod.Put;
+                            break;
+                        case SD.ApiType.DELETE:
+                            message.Method = HttpMethod.Delete;
+                            break;
+                        default:
+                            message.Method = HttpMethod.Get;
+                            break;
+
                     }
-                }
 
-                
-                switch (apiRequest.ApiType)
-                {
-                    case SD.ApiType.POST:
-                        message.Method = HttpMethod.Post;
-                        break;
-                    case SD.ApiType.PUT:
-                        message.Method = HttpMethod.Put;
-                        break;
-                    case SD.ApiType.DELETE:
-                        message.Method = HttpMethod.Delete;
-                        break;
-                    default:
-                        message.Method = HttpMethod.Get;
-                        break;
-
-                }
+                    return message;
+                };
 
                 HttpResponseMessage apiResponse = null;
 
@@ -96,7 +102,7 @@ namespace MagicVilla_Web.Services
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);
                 }
 
-                apiResponse = await client.SendAsync(message);
+                apiResponse = await client.SendAsync(messageFactory());
 
                 var apiContent = await apiResponse.Content.ReadAsStringAsync();
                 try
