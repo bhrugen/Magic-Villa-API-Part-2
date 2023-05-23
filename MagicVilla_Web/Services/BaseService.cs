@@ -13,7 +13,7 @@ namespace MagicVilla_Web.Services
         public APIResponse responseModel { get; set; }
         public IHttpClientFactory httpClient { get; set; }
         private readonly ITokenProvider _tokenProvider;
-        public BaseService(IHttpClientFactory httpClient, TokenProvider tokenProvider)
+        public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider)
         {
             _tokenProvider = tokenProvider;
             this.responseModel = new();
