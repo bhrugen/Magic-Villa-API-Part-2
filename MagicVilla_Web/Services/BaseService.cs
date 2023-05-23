@@ -12,8 +12,10 @@ namespace MagicVilla_Web.Services
     {
         public APIResponse responseModel { get; set; }
         public IHttpClientFactory httpClient { get; set; }
-        public BaseService(IHttpClientFactory httpClient)
+        private readonly ITokenProvider _tokenProvider;
+        public BaseService(IHttpClientFactory httpClient, TokenProvider tokenProvider)
         {
+            _tokenProvider = tokenProvider;
             this.responseModel = new();
             this.httpClient = httpClient;
         }
@@ -32,7 +34,11 @@ namespace MagicVilla_Web.Services
                     message.Headers.Add("Accept", "application/json");
                 }
                 message.RequestUri = new Uri(apiRequest.Url);
-
+                if (_tokenProvider.GetToken() != null)
+                {
+                    var token = _tokenProvider.GetToken();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+                }
                 if (apiRequest.ContentType == ContentType.MultipartFormData)
                 {
                     var content = new MultipartFormDataContent();
