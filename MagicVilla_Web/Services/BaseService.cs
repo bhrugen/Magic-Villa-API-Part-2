@@ -19,7 +19,7 @@ namespace MagicVilla_Web.Services
             this.responseModel = new();
             this.httpClient = httpClient;
         }
-        public async Task<T> SendAsync<T>(APIRequest apiRequest)
+        public async Task<T> SendAsync<T>(APIRequest apiRequest, bool withBearer = true)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace MagicVilla_Web.Services
                     message.Headers.Add("Accept", "application/json");
                 }
                 message.RequestUri = new Uri(apiRequest.Url);
-                if (_tokenProvider.GetToken() != null)
+                if (withBearer && _tokenProvider.GetToken() != null)
                 {
                     var token = _tokenProvider.GetToken();
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
