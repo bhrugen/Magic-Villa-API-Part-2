@@ -217,7 +217,7 @@ namespace MagicVilla_Web.Services
             var content = await response.Content.ReadAsStringAsync();
             var apiResponse = JsonConvert.DeserializeObject<APIResponse>(content);
 
-            if(apiResponse?.IsSuccess != null)
+            if(apiResponse?.IsSuccess != true)
             {
                 await _httpContextAccessor.HttpContext.SignOutAsync();
                 _tokenProvider.ClearToken();
