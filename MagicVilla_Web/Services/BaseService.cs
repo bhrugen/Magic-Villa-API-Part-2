@@ -148,7 +148,11 @@ namespace MagicVilla_Web.Services
                 return returnObj;
 
             }
-            catch(Exception e)
+            catch (AuthException)
+            {
+                throw;
+            }
+            catch (Exception e)
             {
                 var dto = new APIResponse
                 {
@@ -159,6 +163,7 @@ namespace MagicVilla_Web.Services
                 var APIResponse = JsonConvert.DeserializeObject<T>(res);
                 return APIResponse;
             }
+            
         }
 
         private async Task<HttpResponseMessage> SendWithRefreshTokenAsync(HttpClient httpClient,
@@ -193,6 +198,10 @@ namespace MagicVilla_Web.Services
                     }
                     return response;
 
+                }
+                catch(AuthException)
+                {
+                    throw;
                 }
                 catch (HttpRequestException httpRequestException)
                 {
@@ -232,6 +241,7 @@ namespace MagicVilla_Web.Services
             {
                 await _httpContextAccessor.HttpContext.SignOutAsync();
                 _tokenProvider.ClearToken();
+                throw new AuthException();
             }
             else
             {
