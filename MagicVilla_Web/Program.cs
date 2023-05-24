@@ -14,7 +14,7 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddHttpClient<IVillaNumberService, VillaNumberService>();
 builder.Services.AddHttpClient<IVillaService, VillaService>();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
-
+builder.Services.AddSingleton<IApiMessageRequestBuilder, ApiMessageRequestBuilder>();
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IVillaService, VillaService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();

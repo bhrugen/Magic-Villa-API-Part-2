@@ -21,16 +21,18 @@ namespace MagicVilla_Web.Services
         public APIResponse responseModel { get; set; }
         public IHttpClientFactory httpClient { get; set; }
         private readonly ITokenProvider _tokenProvider;
+        private readonly IApiMessageRequestBuilder _apiMessageRequestBuilder;
         protected readonly string VillaApiUrl;
         private IHttpContextAccessor _httpContextAccessor;
         public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider, IConfiguration configuration
-            ,IHttpContextAccessor httpContextAccessor)
+            ,IHttpContextAccessor httpContextAccessor, IApiMessageRequestBuilder apiMessageRequestBuilder)
         {
             _httpContextAccessor = httpContextAccessor;
             _tokenProvider = tokenProvider;
             this.responseModel = new();
             VillaApiUrl = configuration.GetValue<string>("ServiceUrls:VillaAPI");
             this.httpClient = httpClient;
+            _apiMessageRequestBuilder = apiMessageRequestBuilder;
         }
         public async Task<T> SendAsync<T>(APIRequest apiRequest, bool withBearer = true)
         {
@@ -40,68 +42,7 @@ namespace MagicVilla_Web.Services
 
                 var messageFactory = () =>
                 {
-                    HttpRequestMessage message = new();
-                    if (apiRequest.ContentType == ContentType.MultipartFormData)
-                    {
-                        message.Headers.Add("Accept", "*/*");
-                    }
-                    else
-                    {
-                        message.Headers.Add("Accept", "application/json");
-                    }
-                    message.RequestUri = new Uri(apiRequest.Url);
-                   
-                    if (apiRequest.ContentType == ContentType.MultipartFormData)
-                    {
-                        var content = new MultipartFormDataContent();
-
-                        foreach (var prop in apiRequest.Data.GetType().GetProperties())
-                        {
-                            var value = prop.GetValue(apiRequest.Data);
-                            if (value is FormFile)
-                            {
-                                var file = (FormFile)value;
-                                if (file != null)
-                                {
-                                    content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
-                                }
-                            }
-                            else
-                            {
-                                content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
-                            }
-                        }
-
-                        message.Content = content;
-                    }
-                    else
-                    {
-                        if (apiRequest.Data != null)
-                        {
-                            message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
-                                Encoding.UTF8, "application/json");
-                        }
-                    }
-
-
-                    switch (apiRequest.ApiType)
-                    {
-                        case SD.ApiType.POST:
-                            message.Method = HttpMethod.Post;
-                            break;
-                        case SD.ApiType.PUT:
-                            message.Method = HttpMethod.Put;
-                            break;
-                        case SD.ApiType.DELETE:
-                            message.Method = HttpMethod.Delete;
-                            break;
-                        default:
-                            message.Method = HttpMethod.Get;
-                            break;
-
-                    }
-
-                    return message;
+                    return _apiMessageRequestBuilder.Build(apiRequest);
                 };
 
                 HttpResponseMessage httpResponseMessage = null;
