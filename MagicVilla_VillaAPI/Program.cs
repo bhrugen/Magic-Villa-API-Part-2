@@ -18,6 +18,7 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json;
 using MagicVilla_VillaAPI.Extensions;
+using MagicVilla_VillaAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,7 +94,9 @@ app.UseSwagger();
 
 //this will show a different exception
 //app.UseExceptionHandler("/ErrorHandling/ProcessErrorDev");
-app.HandleError();
+//app.HandleError();
+
+app.UseMiddleware<CustomExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI(options => {
