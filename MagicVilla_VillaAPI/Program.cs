@@ -63,6 +63,7 @@ builder.Services.AddAuthentication(x =>
 });
 
 builder.Services.AddControllers(option => {
+    option.Filters.Add<CustomExceptionFilter>();
     //option.CacheProfiles.Add("Default30",
     //   new CacheProfile()
     //   {

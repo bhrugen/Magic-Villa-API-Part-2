@@ -24,6 +24,12 @@ namespace MagicVilla_VillaAPI.Controllers
             throw new FileNotFoundException("test only");
         }
 
+        [HttpGet("ThrowImageError")]
+        public async Task<IActionResult> ThrowImageError()
+        {
+            throw new BadImageFormatException("Bad Imaginary Image");
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
