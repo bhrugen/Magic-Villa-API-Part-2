@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Identity;
 using MagicVilla_VillaAPI.Models;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,7 +91,24 @@ app.UseSwagger();
 // Configure the HTTP request pipeline.
 
 //this will show a different exception
-app.UseExceptionHandler("/ErrorHandling/ProcessErrorDev");
+//app.UseExceptionHandler("/ErrorHandling/ProcessErrorDev");
+app.UseExceptionHandler(error =>
+{
+    error.Run(async context =>
+    {
+        context.Response.StatusCode = 777;
+        context.Response.ContentType = "application/json";
+        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (contextFeature != null)
+        {
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            {
+                StatusCode = context.Response.StatusCode,
+                ErrorMessage = "Hello From Middleware!"
+            }));
+        }
+    });
+});
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI(options => {
