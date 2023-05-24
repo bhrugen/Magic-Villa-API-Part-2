@@ -174,6 +174,27 @@ namespace MagicVilla_VillaAPI.Repository
 
         }
 
+        public async Task RevokeRefreshToken(TokenDTO tokenDTO)
+        {
+            var existingRefreshToken = await _db.RefreshTokens.FirstOrDefaultAsync(_ => _.Refresh_Token == tokenDTO.RefreshToken);
+
+            if (existingRefreshToken == null)
+                return;
+
+            // Compare data from existing refresh and access token provided and
+            // if there is any missmatch then we should do nothing with refresh token
+
+            var isTokenValid = GetAccessTokenData(tokenDTO.AccessToken, existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
+            if (!isTokenValid)
+            {
+
+                return;
+            }
+
+            await MarkAllTokenInChainAsInvalid(existingRefreshToken.UserId,existingRefreshToken.JwtTokenId);
+
+        }
+
         private async Task<string> CreateNewRefreshToken(string userId, string tokenId)
         {
             RefreshToken refreshToken = new()
@@ -222,5 +243,7 @@ namespace MagicVilla_VillaAPI.Repository
             refreshToken.IsValid = false;
            return _db.SaveChangesAsync();
         }
+
+       
     }
 }
