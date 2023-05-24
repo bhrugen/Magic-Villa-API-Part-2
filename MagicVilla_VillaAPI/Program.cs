@@ -80,7 +80,7 @@ app.UseSwagger();
 // Configure the HTTP request pipeline.
 
 //this will show a different exception
-app.UseExceptionHandler("/ErrorHandling/ProcessError");
+app.UseExceptionHandler("/ErrorHandling/ProcessErrorDev");
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI(options => {
