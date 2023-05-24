@@ -27,7 +27,7 @@ namespace MagicVilla_VillaAPI.Controllers
         [HttpGet("ThrowImageError")]
         public async Task<IActionResult> ThrowImageError()
         {
-            throw new BadImageFormatException("Bad Imaginary Image");
+            throw new BadImageFormatException();
         }
 
 
