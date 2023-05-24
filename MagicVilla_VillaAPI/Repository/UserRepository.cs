@@ -113,9 +113,12 @@ namespace MagicVilla_VillaAPI.Repository
                     new Claim(ClaimTypes.Name, user.UserName.ToString()),
                     new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
                     new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id)
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Aud, "dotnetmastery.com")
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(1),
+                Issuer="https://magicvilla-api.com",
+                Audience="https://test-magic-api.com",
                 SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
