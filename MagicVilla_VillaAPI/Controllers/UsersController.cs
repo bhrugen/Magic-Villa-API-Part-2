@@ -18,8 +18,8 @@ namespace MagicVilla_VillaAPI.Controllers
             _userRepo = userRepo;
             _response = new();
         }
-        [HttpPost("error")]
-        public async Task<IActionResult> Error([FromBody] LoginRequestDTO model)
+        [HttpGet("ThrowError")]
+        public async Task<IActionResult> ThrowError()
         {
             throw new FileNotFoundException("test only");
         }

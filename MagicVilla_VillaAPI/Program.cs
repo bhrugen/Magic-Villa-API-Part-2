@@ -78,6 +78,8 @@ var app = builder.Build();
 app.UseSwagger();
 
 // Configure the HTTP request pipeline.
+
+//app.UseExceptionHandler("/ErrorHandling/ProcessError");
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI(options => {
