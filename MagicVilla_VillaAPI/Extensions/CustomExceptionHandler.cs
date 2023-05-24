@@ -16,11 +16,25 @@ namespace MagicVilla_VillaAPI.Extensions
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                     if (contextFeature != null)
                     {
+                        if(contextFeature.Error is BadImageFormatException badImageException)
+                        {
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                            {
+                                //if you had custom exception where you are passing status code then you can pass here
+                                StatusCode = 776,
+                                ErrorMessage = "Hello From Middleware! Image Format is invalid"
+                            }));
+                        }
+                        else
+                        {
+                            
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(new
                         {
                             StatusCode = context.Response.StatusCode,
                             ErrorMessage = "Hello From Middleware!"
                         }));
+                        }
+
                     }
                 });
             });
