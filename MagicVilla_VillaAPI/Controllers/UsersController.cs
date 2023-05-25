@@ -19,7 +19,7 @@ namespace MagicVilla_VillaAPI.Controllers
             _response = new();
         }
 
-        [HttpGet]
+        [HttpGet("Error")]
         public async Task<IActionResult> Error()
         {
             throw new FileNotFoundException();
