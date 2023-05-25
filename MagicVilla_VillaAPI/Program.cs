@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using MagicVilla_VillaAPI.Models;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using MagicVilla_VillaAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,12 +64,7 @@ builder.Services.AddAuthentication(x =>
 });
 
 builder.Services.AddControllers(option => {
-    //option.CacheProfiles.Add("Default30",
-    //   new CacheProfile()
-    //   {
-    //       Duration = 30
-    //   });
-    //option.ReturnHttpNotAcceptable=true;
+    option.Filters.Add<CustomExceptionFilter>();
 }).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
