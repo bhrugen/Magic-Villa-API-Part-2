@@ -18,12 +18,24 @@ namespace MagicVilla_VillaAPI.Extensions
                     {
                         if (isDevelopment)
                         {
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                            if (feature.Error is BadImageFormatException badImageException)
                             {
-                                StatusCode = context.Response.StatusCode,
-                                ErrorMessage = feature.Error.Message,
-                                StackTrace = feature.Error.StackTrace
-                            }));
+                                await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                                {
+                                    //if you had custom exception where you are passing status code then you can pass here
+                                    StatusCode = 776,
+                                    ErrorMessage = "Hello From Custom Handler! Image Format is invalid"
+                                }));
+                            }
+                            else
+                            {
+                                await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                                {
+                                    StatusCode = context.Response.StatusCode,
+                                    ErrorMessage = feature.Error.Message,
+                                    StackTrace = feature.Error.StackTrace
+                                }));
+                            }
                         }
                         else
                         {
