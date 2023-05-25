@@ -19,6 +19,12 @@ namespace MagicVilla_VillaAPI.Controllers
             _response = new();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Error()
+        {
+            throw new FileNotFoundException();
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
