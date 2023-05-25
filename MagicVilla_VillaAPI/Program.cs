@@ -75,14 +75,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
+app.UseSwagger();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
     app.UseSwaggerUI(options => {
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+    });
+}
+else
+{
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+        options.RoutePrefix = "";
     });
 }
 app.UseStaticFiles(); 
